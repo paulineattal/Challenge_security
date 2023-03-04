@@ -4,33 +4,51 @@ from pages import home, page1
 import dash_bootstrap_components as dbc
 
 # Navbar layout
-
 navbar = dbc.Navbar(
-    #définition du contener qui comportera des pages avec les liens
     dbc.Container(
         [
-            dbc.Row([
-                dbc.Col([
-                    dbc.NavbarToggler(id="navbar-toggler"),
-                    dbc.Nav([
-                        #pourchaque page, on créer un lien
-                        dbc.NavItem(dbc.NavLink("Home", href="/")),
-                        dbc.NavItem(dbc.NavLink("Page 1", href="/page1")),
-                    ])
-                ],width=10), 
-        ]),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        html.A(
+                            dbc.Row(
+                                [
+                                    dbc.Col(
+                                        html.Img(src="/assets/logo.png", height="30px")
+                                    ),
+                                    dbc.Col(dbc.NavbarBrand("Home Secu-Data", className="ml-2")),
+                                ],
+                                align="center",
+                                className="no-gutters",
+                            ),
+                            href="/",
+                        ),
+                        width="auto",
+                    ),
+                    dbc.Col(
+                        dbc.Nav(
+                            [
+                                dbc.NavItem(dbc.NavLink("Page 1", href="/page1")),
+                            ],
+                            navbar=True,
+                        ),
+                        width=True,
+                        className="ml-auto",
+                    ),
+                ],
+                align="center",
+            ),
         ],
         fluid=True,
     ),
-    #couleurs de la barre de navigation
+    color="dark",
     dark=True,
-    color='secondary'
 )
 
 # App layout with navbar
 app.layout = html.Div([
-    navbar,
     dcc.Location(id='url', refresh=False),
+    navbar,
     html.Div(id='page-content')
 ])
 
@@ -40,7 +58,7 @@ def display_page(pathname):
     if pathname == '/':
         return home.layout
     elif pathname == '/page1':
-        return page1.layout
+        return page1.layout()
     else:
         return '404'
 
