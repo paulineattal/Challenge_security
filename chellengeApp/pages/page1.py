@@ -1,42 +1,23 @@
 import pandas as pd
 from dash import html, dcc, Input, Output, callback
 import dash_bootstrap_components as dbc
+import plotly.express as px
 
-filename = "C:/Users/pauli/Documents/M2/secu/challenge/Challenge_security/chellengeApp/pages/test_sise.txt"
+df = pd.read_csv(r'C:\Users\pauli\Documents\M2\secu\challenge\Challenge_security\chellengeApp\pages\data_test.csv', sep=',')
 
-# Définir la liste des noms de colonnes pour le dataframe
-column_names = ['date', 'ip_address', 'server_name', 'client_identity', 'user_identity', 'timestamp', 'request', 'status_code', 'response_size', 'referer', 'user_agent']
+###definition des gaphiques fig
 
-# Ouvrir le fichier texte et lire les lignes en tant que liste
-with open(filename, 'r') as f:
-    lines = f.readlines()
+# Créer un histogramme des requêtes par heure
+requests_per_hour = df.groupby(df['datetime'].str[:2]).size().reset_index(name='count')
+fig1 = px.bar(requests_per_hour, x='datetime', y='count', title='Requêtes par heure')
 
-# Créer une liste vide pour stocker chaque ligne de données en tant que dictionnaire
-data_list = []
+# Créer un graphique à barres pour les adresses IP avec le plus grand nombre de requêtes
+ip_counts = df['ip'].value_counts().reset_index()
+ip_counts.columns = ['ip', 'count']
+top_ips = ip_counts.head(10)
+fig2 = px.bar(top_ips, x='ip', y='count', title='Les 10 adresses IP les plus fréquentes')
 
-# Boucle à travers chaque ligne et extraire les données en tant que dictionnaire
-for line in lines:
-    # Diviser la ligne en utilisant l'espace comme séparateur
-    fields = line.split()
-    # Extraire chaque champ de données et l'ajouter au dictionnaire
-    data_dict = {
-        'date': fields[0] + ' ' + fields[1] + ' ' + fields[2],
-        'ip_address': fields[3],
-        'server_name': fields[4].split(':')[0],
-        'client_identity': fields[4].split(':')[1] if len(fields[4].split(':')) > 1 else '-',
-        'user_identity': fields[5] if fields[5] != '-' else '-',
-        'timestamp': fields[6].lstrip('['),
-        'request': fields[7] + ' ' + fields[8] + ' ' + fields[9],
-        'status_code': fields[10],
-        'response_size': fields[11],
-        'referer': fields[12][1:-1] if fields[12] != '-' else '-',
-        'user_agent': ' '.join(fields[13:])[1:-2] if fields[12] != '-' else '-'
-    }
-    # Ajouter le dictionnaire à la liste de données
-    data_list.append(data_dict)
 
-# Convertir la liste de dictionnaires en un dataframe Pandas
-df = pd.DataFrame(data_list, columns=column_names)
 
 
 card1 = dbc.Card(
@@ -45,16 +26,7 @@ card1 = dbc.Card(
             html.H4('Graph 1', className='card-title'),
             dcc.Graph(
                 id='graph1',
-                figure={
-                    'data': [
-                        {'x': df['date'], 'y': df['timestamp'], 'type': 'line', 'name': 'Response Time'},
-                    ],
-                    'layout': {
-                        'title': 'Response Time by Date',
-                        'xaxis': {'title': 'Date'},
-                        'yaxis': {'title': 'Response Time (ms)'},
-                    }
-                }
+                figure=fig1
             ),
         ]
     )
@@ -66,62 +38,13 @@ card2 = dbc.Card(
             html.H4('Graph 2', className='card-title'),
             dcc.Graph(
                 id='graph2',
-                figure={
-                    'data': [
-                        {'x': df['date'], 'y': df['response_size'], 'type': 'bar', 'name': 'Bytes Sent'},
-                    ],
-                    'layout': {
-                        'title': 'Bytes Sent by Date',
-                        'xaxis': {'title': 'Date'},
-                        'yaxis': {'title': 'Bytes Sent'},
-                    }
-                }
+                figure=fig2
             ),
         ]
     )
 )
 
-card3 = dbc.Card(
-    dbc.CardBody(
-        [
-            html.H4('Graph 3', className='card-title'),
-            dcc.Graph(
-                id='graph3',
-                figure={
-                    'data': [
-                        {'x': df['date'], 'y': df['request'], 'type': 'scatter', 'mode': 'lines', 'name': 'Requests'},
-                    ],
-                    'layout': {
-                        'title': 'Requests by Date',
-                        'xaxis': {'title': 'Date'},
-                        'yaxis': {'title': 'Requests'},
-                    }
-                }
-            ),
-        ]
-    )
-)
 
-card4 = dbc.Card(
-    dbc.CardBody(
-        [
-            html.H4('Graph 4', className='card-title'),
-            dcc.Graph(
-                id='graph4',
-                figure={
-                    'data': [
-                        {'x': df['date'], 'y': df['status_code'], 'type': 'scatter', 'mode': 'markers', 'name': 'Status Code'},
-                    ],
-                    'layout': {
-                        'title': 'Status Code by Date',
-                        'xaxis': {'title': 'Date'},
-                        'yaxis': {'title': 'Status Code'},
-                    }
-                }
-            ),
-        ]
-    )
-)
 
 def layout():
     return dbc.Container(
@@ -160,7 +83,7 @@ def layout():
                         width=3,
                     ),
                 ],
-                className="mb-4",
+                className="mb-2",
             ),
             dbc.Row(
                 [
@@ -171,17 +94,9 @@ def layout():
                     dbc.Col(
                         card2,
                         width=3,
-                    ),
-                    dbc.Col(
-                        card3,
-                        width=3,
-                    ),
-                    dbc.Col(
-                        card4,
-                        width=3,
-                    ),
+                    )
                 ],
-                className="mb-4",
+                className="mb-2",
             ),
         ],
         fluid=True,
