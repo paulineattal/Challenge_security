@@ -27,5 +27,3 @@ db_connection.close()
 # Create a dataframe from the database table
 dfdb = pd.DataFrame(table_rows)
 dfdb.columns=['date', 'ipsrc', 'ipdst', 'port','proto', 'action', 'policyid']
-
-print(dfdb.head(10))
