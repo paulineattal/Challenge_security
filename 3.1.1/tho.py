@@ -72,15 +72,20 @@ df.drop([8,9],axis=1,inplace=True)
 
 df.columns = ["datetime","ipsrc","ipdst","proto","portsrc","portdst","policyid","action","numproto"]
 
-df_actif = df.iloc[:,3:]
-df_actif = pd.get_dummies(df_actif, columns=df_actif.select_dtypes('object').columns)
-
 # CAH
 from scipy.cluster.hierarchy import dendrogram, linkage, fcluster
 from matplotlib import pyplot as plt
 from scipy.cluster.hierarchy import dendrogram, linkage, fcluster
-#générer la matrice des liens
-dist_ind_data=linkage(df_actif.values,method='ward',metric='euclidean')
+
+df_actif = df.iloc[:,3:]
+df_actif = pd.get_dummies(df_actif, columns=df_actif.select_dtypes('object').columns)
+
+def matrice_lien(df):
+    #générer la matrice des liens
+    dist_ind_data =linkage(df.values,method='ward',metric='euclidean')
+    return dist_ind_data
+
+dist_ind_data = matrice_lien(df_actif)
 
 #affichage du dendrogramme
 plt.title("CAH") 
@@ -88,7 +93,18 @@ dendrogram(dist_ind_data,orientation='right',color_threshold=0)
 plt.show()
 
 # afficher chaque groupe:
-groupes_cah = fcluster(dist_ind_data,t=0.5*1000000,criterion='distance')
-df_actif["groupe"]=groupes_cah
-groupe1 = df.loc[df_actif["groupe"]==1,:]
-groupe1
+def groupe_cah(matrice,seuil,nb_groupe):
+    groupes_cah = fcluster(matrice,t=seuil,criterion='distance')
+    df_actif["groupe"]=groupes_cah
+    groupe = df.loc[df_actif["groupe"]==nb_groupe,:]
+    return groupe
+
+groupe = groupe_cah(dist_ind_data,seuil=0.5*1000000,nb_groupe=1)
+
+print(groupe)
+
+fig_ipsrc = px.histogram(groupe, x = "ipsrc")
+fig_ipsrc.show()
+
+fig_action = px.pie(groupe, values = groupe.action.value_counts(), names =groupe.action.unique())
+fig_action.show()
