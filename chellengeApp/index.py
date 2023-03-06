@@ -1,6 +1,6 @@
 from dash import html, Input, Output, dcc
 from app import app
-from pages import home, page1
+from pages import home, page1, iptable
 import dash_bootstrap_components as dbc
 
 # Navbar layout
@@ -29,6 +29,7 @@ navbar = dbc.Navbar(
                         dbc.Nav(
                             [
                                 dbc.NavItem(dbc.NavLink("Page 1", href="/page1")),
+                                dbc.NavItem(dbc.NavLink("Iptable", href="/iptable")),
                             ],
                             navbar=True,
                         ),
@@ -59,6 +60,8 @@ def display_page(pathname):
         return home.layout
     elif pathname == '/page1':
         return page1.layout()
+    elif pathname == '/iptable':
+        return iptable.layout()
     else:
         return '404'
 

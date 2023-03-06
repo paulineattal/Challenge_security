@@ -2,7 +2,6 @@ import pandas as pd
 from dash import html, dcc, Input, Output, callback
 import dash_bootstrap_components as dbc
 import plotly.express as px
-import plotly.graph_objects as go
 
 df = pd.read_csv(r'C:\Users\pauli\Documents\M2\secu\challenge\Challenge_security\chellengeApp\data\data_test.csv', sep=',')
 
