@@ -89,7 +89,7 @@ def layout():
 )
 def update_figures(protocol, top):
     global df
-    filtered_df = df.copy()
+    df = df.copy()
 
     # Filtrer par protocol
     if protocol is not None:
