@@ -4,19 +4,15 @@ import dash_bootstrap_components as dbc
 import plotly.express as px
 
 df = pd.read_csv(r'C:\Users\pauli\Documents\M2\secu\challenge\Challenge_security\chellengeApp\data\log_fw_3.csv', sep=';', header=None)
-print(df.columns)
 df.drop([8,9], axis=1, inplace=True)
 cnames = ['datetime','ipsrc','ipdst','proto','portsrc','portdst','policyid','action','numproto']
 df.columns = cnames
-df['policyid'] = df['policyid'].values.astype('int')
-df['policyid'] = df['policyid'].values.astype('str')
-df['portsrc'] = df['portsrc'].values.astype('int')
-df['portsrc'] = df['portsrc'].values.astype('str')
-df['portdst'] = df['portdst'].values.astype('int')
-df['portdst'] = df['portdst'].values.astype('str')
-df['numproto'] = df['numproto'].values.astype('int')
-df['numproto'] = df['numproto'].values.astype('str')
+df['policyid'] = df['policyid'].astype(str)
+df['portsrc'] = pd.to_numeric(df['portsrc'], errors='coerce', downcast='integer')
+df['portdst'] = pd.to_numeric(df['portdst'], errors='coerce', downcast='integer')
+df['numproto'] = df['numproto'].astype(str)
 df['datetime'] = pd.to_datetime(df['datetime'])
+
 
 
 df_tcp = df.loc[df['proto'] == 'TCP']
