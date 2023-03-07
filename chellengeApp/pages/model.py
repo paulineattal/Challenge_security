@@ -3,31 +3,29 @@ import pandas as pd
 import numpy as np
 import os
 import plotly.express as px
-os.chdir("/Users/dangnguyenviet/Desktop/projet-securite")
 
+path = os.getcwd()
+df = pd.read_csv(path+'/data/FW.csv', sep=',')
 
 # CAH
 from scipy.cluster.hierarchy import dendrogram, linkage, fcluster
 from matplotlib import pyplot as plt
 from scipy.cluster.hierarchy import dendrogram, linkage, fcluster
-df = pd.read_table("FW.csv",sep=",",header=0)
-df.dstport.astype("float")
-df.policyid.astype("float")
-df.info()
-df_actif = df[["dstport","proto","action","policyid"]]
 
+df_actif = df[["dstport","proto","action","policyid"]]
 df_actif = pd.get_dummies(df_actif, columns=df_actif.select_dtypes('object').columns)
-print(df_actif.info())
+
 def matrice_lien(df):
     #générer la matrice des liens
     dist_ind_data =linkage(df.values,method='ward',metric='euclidean')
     return dist_ind_data
 
 dist_ind_data = matrice_lien(df_actif)
-
+print(dist_ind_data.shape)
 #affichage du dendrogramme
-import seaborn as sns
-sns.clustermap(dist_ind_data)
+plt.title("CAH") 
+dendrogram(dist_ind_data,orientation='right',color_threshold=0) 
+plt.show()
 
 # afficher chaque groupe:
 def groupe_cah(matrice,seuil,nb_groupe):
@@ -38,7 +36,7 @@ def groupe_cah(matrice,seuil,nb_groupe):
 
 groupe = groupe_cah(dist_ind_data,seuil=0.5*1000000,nb_groupe=1)
 
-print(groupe)
+#print(groupe)
 
 fig_ipsrc = px.histogram(groupe, x = "ipsrc")
 fig_ipsrc.show()

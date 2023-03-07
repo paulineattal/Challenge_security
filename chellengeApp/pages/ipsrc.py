@@ -5,8 +5,6 @@ import pandas as pd
 import dash_bootstrap_components as dbc
 from plotly.subplots import make_subplots
 
-
-
 import os
 path = os.getcwd()
 df = pd.read_csv(path+'/data/FW.csv', sep=',')
