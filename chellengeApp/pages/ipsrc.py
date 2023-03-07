@@ -47,27 +47,26 @@ fig = sp.make_subplots(specs=[[{"secondary_y": True}]])
 
 # Add traces
 fig.add_trace(
-    go.Scatter(x=p['ipsrc'], y=p['nb_portdst'], name="yaxis data", mode='markers', marker_size=4),
+    go.Scatter(x=p['ipsrc'], y=p['nb_portdst'], name="nb portdst", mode='markers', marker_size=4),
     secondary_y=False,
 )
 
 fig.add_trace(
-    go.Scatter(x=p['ipsrc'], y=p['nb_deny'], name="yaxis2 data", mode='markers', marker_size=4),
+    go.Scatter(x=p['ipsrc'], y=p['nb_deny'], name="nb deny", mode='markers', marker_size=4),
     secondary_y=True,
 )
 
 
 # Add figure title
 fig.update_layout(
-    title_text="Double Y Axis Example"
+    title_text="Number of portdst and number of deny for each ipsrc"
 )
 
 # Set x-axis title
-fig.update_xaxes(title_text="xaxis title")
+fig.update_xaxes(title_text="ipsrc")
 
 # Set y-axes titles
-fig.update_yaxes(title_text="<b>primary</b> yaxis title", secondary_y=False)
-fig.update_yaxes(title_text="<b>secondary</b> yaxis title", secondary_y=True)
+fig.update_yaxes(title_text="number of <b>portdst</b> and <b>deny</b>", secondary_y=False)
 
 
 card7 = dbc.Card(
