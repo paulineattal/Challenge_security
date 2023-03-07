@@ -24,19 +24,25 @@ top_ports_permit = df_permit['portdst'].value_counts().nlargest(10).index.tolist
 df_permit = df_permit[df_permit['portdst'].isin(top_ports_permit)]
 df_deny_gb = df_deny.groupby(['policyid', 'portdst']).size().reset_index(name='counts')
 df_permit_gb = df_permit.groupby(['policyid', 'portdst']).size().reset_index(name='counts')
-fig4 = px.sunburst(df_deny_gb, path=['policyid', 'portdst'], values='counts')
-fig5 = px.sunburst(df_permit_gb, path=['policyid', 'portdst'], values='counts')
+fig4 = px.sunburst(df_deny_gb, path=['policyid', 'portdst'], values='counts',
+                   color='counts', color_continuous_scale='reds')
+fig5 = px.sunburst(df_permit_gb, path=['policyid', 'portdst'], values='counts',
+                   color='counts', color_continuous_scale='greens')
+
 
 
 df_deny_permit = pd.DataFrame(df_tcp.value_counts(['action','policyid']))
 df_deny_permit.reset_index(inplace=True)
 df_deny_permit.columns = ['action','policyid','count']
-fig6 = px.sunburst(df_deny_permit, path=['action', 'policyid'], values='count')
+fig6 = px.sunburst(df_deny_permit, path=['action', 'policyid'], values='count',
+                    color='action', color_discrete_map={'DENY':'red', 'PERMIT':'green'},
+                    branchvalues='total',
+                    )
 
 card4 = dbc.Card(
     dbc.CardBody(
         [
-            html.H4('Classement des règles les plus utilisées', className='card-title'),
+            html.H4('ID règles par rapport aux ports de destination pour action DENY', className='card-title'),
             dcc.Graph(
                 id='graph4',
                 figure=fig4
@@ -48,7 +54,7 @@ card4 = dbc.Card(
 card5 = dbc.Card(
     dbc.CardBody(
         [
-            html.H4('Classement des règles les plus utilisées', className='card-title'),
+            html.H4('ID règles par rapport aux ports de destination pour action PERMIT', className='card-title'),
             dcc.Graph(
                 id='graph5',
                 figure=fig5
@@ -60,7 +66,7 @@ card5 = dbc.Card(
 card6 = dbc.Card(
     dbc.CardBody(
         [
-            html.H4('Classement des règles les plus utilisées', className='card-title'),
+            html.H4('ID règles par rapport aux actions', className='card-title'),
             dcc.Graph(
                 id='graph6',
                 figure=fig6
@@ -76,7 +82,7 @@ def layout():
             html.Hr(),
             dbc.Row([
                 dbc.Col(
-                        card4,
+                        card6,
                         width=12,
                     )
             ],
@@ -85,11 +91,11 @@ def layout():
             dbc.Row(
                 [
                     dbc.Col(
-                        card5,
+                        card4,
                         width=6,
                     ),
                     dbc.Col(
-                        card6,
+                        card5,
                         width=6,
                     )
                 ],

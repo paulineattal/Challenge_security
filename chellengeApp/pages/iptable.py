@@ -9,7 +9,6 @@ df = pd.read_csv(r'C:\Users\pauli\Documents\M2\secu\challenge\Challenge_security
 df.drop([8,9], axis=1, inplace=True)
 cnames = ['datetime','ipsrc','ipdst','proto','portsrc','portdst','policyid','action','numproto']
 df.columns = cnames
-df['policyid'] = df['policyid'].values.astype('int')
 df['policyid'] = df['policyid'].values.astype('str')
 
 
@@ -17,7 +16,7 @@ rules = pd.DataFrame(df['policyid'].value_counts(normalize=True))
 #rules = pd.DataFrame(df['policyid'][df['proto'] == "TCP"].value_counts(normalize=True))
 rules.reset_index(inplace=True)
 rules.columns = ['policyid','percentage']
-rules5 = rules.head(5)
+rules5 = rules.head(5).copy()
 #threshold = 0.2
 #rules5 = rules5[rules5['percentage'] > threshold]
 rules5['percentage'] = rules5['percentage']*100
@@ -107,7 +106,7 @@ def update_figures(protocol, top):
     rules = pd.DataFrame(df['policyid'][df['proto'] == protocol].value_counts(normalize=True))
     rules.reset_index(inplace=True)
     rules.columns = ['policyid','percentage']
-    rules5 = rules.head(top)
+    rules5 = rules.head(top).copy()
     #threshold = 0.2
     #rules5 = rules5[rules5['percentage'] > threshold]
     rules5['percentage'] = rules5['percentage']*100

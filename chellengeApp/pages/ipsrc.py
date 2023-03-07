@@ -56,6 +56,7 @@ fig.add_trace(
     secondary_y=True,
 )
 
+
 # Add figure title
 fig.update_layout(
     title_text="Double Y Axis Example"
@@ -69,12 +70,10 @@ fig.update_yaxes(title_text="<b>primary</b> yaxis title", secondary_y=False)
 fig.update_yaxes(title_text="<b>secondary</b> yaxis title", secondary_y=True)
 
 
-
-
 card7 = dbc.Card(
     dbc.CardBody(
         [
-            html.H4('Classement des règles les plus utilisées', className='card-title'),
+            html.H4('IP', className='card-title'),
             dcc.Graph(
                 id='graph7',
                 figure=fig
@@ -93,7 +92,7 @@ def layout():
                 dbc.Col(
                     dcc.Input(
                         id='min-port',
-                        type='text',
+                        type='number',
                         placeholder='Enter a number of port min try',
                     ),
                     width=3,
@@ -101,7 +100,7 @@ def layout():
                 dbc.Col(
                     dcc.Input(
                         id='min-deny',
-                        type='text',
+                        type='number',
                         placeholder='Enter a number of access denied min',
                     ),
                     width=3,
@@ -131,27 +130,27 @@ def update_figure(deny, port):
     global p
     p = p.copy()
     if deny is not None:
-        deny = deny
+        deny = int(deny)
     else : 
         deny = 5000
     if port is not None:
-        port = port
+        port = int(port)
     else : 
         port = 5000
 
-    filtered_data = p[(p['nb_portdst'] >= port) & (p['nb_deny'] >= deny)]
+    p = p[(p['nb_portdst'] >= port) & (p['nb_deny'] >= deny)]
     
     # Create figure with secondary y-axis
     fig = sp.make_subplots(specs=[[{"secondary_y": True}]])
 
     # Add traces
     fig.add_trace(
-        go.Scatter(x=filtered_data['ipsrc'], y=filtered_data['nb_portdst'], name="yaxis data", mode='markers', marker_size=4),
+        go.Scatter(x=p['ipsrc'], y=p['nb_portdst'], name="yaxis data", mode='markers', marker_size=4),
         secondary_y=False,
     )
 
     fig.add_trace(
-        go.Scatter(x=filtered_data['ipsrc'], y=filtered_data['nb_deny'], name="yaxis2 data", mode='markers', marker_size=4),
+        go.Scatter(x=p['ipsrc'], y=p['nb_deny'], name="yaxis2 data", mode='markers', marker_size=4),
         secondary_y=True,
     )
 
@@ -167,5 +166,5 @@ def update_figure(deny, port):
     fig.update_yaxes(title_text="<b>primary</b> yaxis title", secondary_y=False)
     fig.update_yaxes(title_text="<b>secondary</b> yaxis title", secondary_y=True)
 
-    return [fig]
+    return fig
    
