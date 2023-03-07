@@ -1,10 +1,11 @@
-FROM python:3.9.12
+FROM python:latest
 
-RUN mkdir wd
-WORKDIR wd
-COPY requirements.txt ./requirements.txt
-RUN pip install -r requirements.txt
+RUN mkdir /app
+WORKDIR /app
+
+COPY requirements.txt /app
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . ./
  
-CMD []
+CMD ["gunicorn", "-b", "0.0.0.0:80", "app:server"]

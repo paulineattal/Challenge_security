@@ -3,14 +3,12 @@ from dash import html, dcc
 import dash_bootstrap_components as dbc
 import plotly.express as px
 
-df = pd.read_csv(r'C:\Users\pauli\Documents\M2\secu\challenge\Challenge_security\chellengeApp\data\log_fw_3.csv', sep=';', header=None)
-df.drop([8,9], axis=1, inplace=True)
-cnames = ['datetime','ipsrc','ipdst','proto','portsrc','portdst','policyid','action','numproto']
-df.columns = cnames
+import os
+path = os.getcwd()
+df = pd.read_csv(path+'/data/FW.csv', sep=',')
+
 df['policyid'] = df['policyid'].astype(str)
-df['portsrc'] = pd.to_numeric(df['portsrc'], errors='coerce', downcast='integer')
-df['portdst'] = pd.to_numeric(df['portdst'], errors='coerce', downcast='integer')
-df['numproto'] = df['numproto'].astype(str)
+df['dstport'] = pd.to_numeric(df['dstport'], errors='coerce', downcast='integer')
 df['datetime'] = pd.to_datetime(df['datetime'])
 
 
@@ -19,8 +17,9 @@ top5_ipsrc = df['ipsrc'].value_counts().nlargest(5)
 fig8 = px.bar(x=top5_ipsrc.index, y=top5_ipsrc.values, labels={'x':'IP source', 'y':'Nombre de paquets'}, title='TOP 5 des IP sources les plus émettrices')
 
 # TOP 10 des ports inférieurs à 1024 avec un accès autorisé
-top10_ports = df.loc[(df['portdst'] < 1024) & (df['action'] == 'PERMIT'), 'portdst'].value_counts().nlargest(10)
-# Visualisation du TOP 10 des ports inférieurs à 1024 avec un accès autorisé
+top10_ports = df.loc[(df['dstport'] < 1024) & (df['action'] == 'Permit'), 'dstport'].value_counts().nlargest(10)
+
+
 # Définition du dictionnaire port_labels
 port_labels = {
     20: 'FTP data',
@@ -41,9 +40,6 @@ modalites_ports = top10_ports.index.map(port_labels)
 
 # Visualisation du TOP 10 des ports inférieurs à 1024 avec un accès autorisé en modalités
 fig9 = px.bar(x=modalites_ports, y=top10_ports.values, labels={'x':'Port destination', 'y':'Nombre de paquets'}, title='TOP 10 des ports inférieurs à 1024 avec un accès autorisé')
-
-#fig9 = px.bar(x=top10_ports.index, y=top10_ports.values, labels={'x':'Port destination', 'y':'Nombre de paquets'}, title='TOP 10 des ports inférieurs à 1024 avec un accès autorisé')
-
 
 card8 = dbc.Card(
     dbc.CardBody(

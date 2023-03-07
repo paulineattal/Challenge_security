@@ -3,7 +3,24 @@ from dash import html, dcc, Input, Output, callback
 import dash_bootstrap_components as dbc
 import plotly.express as px
 
-df = pd.read_csv(r'C:\Users\pauli\Documents\M2\secu\challenge\Challenge_security\chellengeApp\data\data_test.csv', sep=',')
+import os
+import re
+
+
+path = os.getcwd()
+filename = str(path)+"/data/test_sise.txt"
+
+log_regex = r'(\S+)\s+(\d+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+:\d+)\s+(\S+)\s+(\S+)\s+(\S+)\s+\[(.+)\]\s+"(.+)"\s+(\d+)\s+(\d+|-)\s+"(.+)"\s+"(.+)"'
+
+with open(filename) as file:
+    log_data = file.read()
+log_list = re.findall(log_regex, log_data, re.MULTILINE)
+df = pd.DataFrame(log_list, columns = ['month', 'day', 'time', 'ip', 'user', 'server', 'local_ip', 'client_id', 'user_id', 'request_datetime', 'request', 'status', 'response_size', 'referrer', 'user_agent'])
+
+# Supprimer le fuseau horaire à la fin de request_datetime
+#df['request_datetime'] = df['request_datetime'].str.replace(r'-\d{4}$', '', regex=True)
+
+df[['hour', 'minute', 'second']] = df['time'].str.split(':', expand=True)
 
 ###definition des gaphiques fig
 

@@ -7,28 +7,26 @@ from plotly.subplots import make_subplots
 
 
 
-df = pd.read_csv(r'C:\Users\pauli\Documents\M2\secu\challenge\Challenge_security\chellengeApp\data\log_fw_3.csv', sep=';', header=None)
-df.drop([8,9], axis=1, inplace=True)
-cnames = ['datetime','ipsrc','ipdst','proto','portsrc','portdst','policyid','action','numproto']
-df.columns = cnames
+import os
+path = os.getcwd()
+df = pd.read_csv(path+'/data/FW.csv', sep=',')
+
 df['policyid'] = df['policyid'].astype(str)
-df['portsrc'] = pd.to_numeric(df['portsrc'], errors='coerce', downcast='integer')
-df['portdst'] = pd.to_numeric(df['portdst'], errors='coerce', downcast='integer')
-df['numproto'] = df['numproto'].astype(str)
+df['dstport'] = pd.to_numeric(df['dstport'], errors='coerce', downcast='integer')
 df['datetime'] = pd.to_datetime(df['datetime'])
 
-#count unique value of portdst for each ipsrc
-test = df.groupby('ipsrc')['portdst'].nunique()
+#count unique value of dstport for each ipsrc
+test = df.groupby('ipsrc')['dstport'].nunique()
 test = pd.DataFrame(test)
 test.reset_index(inplace=True)
-test.columns = ['ipsrc','nb_portdst']
+test.columns = ['ipsrc','nb_dstport']
 
 Dipsrc = df.groupby('ipsrc')['action'].value_counts()
 
 Dipsrc = pd.DataFrame(Dipsrc)
 Dipsrc.columns = ['count']
 Dipsrc.reset_index(inplace=True)
-Dipsrc = Dipsrc[Dipsrc['action']=='DENY'].drop(['action'], axis=1)
+Dipsrc = Dipsrc[Dipsrc['action']=='Deny'].drop(['action'], axis=1)
 
 
 distinct_ipsrc = df['ipsrc'].unique()
@@ -39,7 +37,7 @@ Dipsrc['count'] = Dipsrc['count'].fillna(0)
 
 #join test and Dipsrc on ipsrc
 p = test.merge(Dipsrc, on='ipsrc')
-p.columns = ['ipsrc','nb_portdst','nb_deny']
+p.columns = ['ipsrc','nb_dstport','nb_deny']
 p.reset_index(drop=True, inplace=True)
 
 # Create figure with secondary y-axis
@@ -47,7 +45,7 @@ fig = sp.make_subplots(specs=[[{"secondary_y": True}]])
 
 # Add traces
 fig.add_trace(
-    go.Scatter(x=p['ipsrc'], y=p['nb_portdst'], name="yaxis data", mode='markers', marker_size=4),
+    go.Scatter(x=p['ipsrc'], y=p['nb_dstport'], name="yaxis data", mode='markers', marker_size=4),
     secondary_y=False,
 )
 
@@ -93,17 +91,17 @@ def layout():
                     dcc.Input(
                         id='min-port',
                         type='number',
-                        placeholder='Enter a number of port min try',
+                        placeholder='Numb of port min try',
                     ),
-                    width=3,
+                    width=2,
                 ),
                 dbc.Col(
                     dcc.Input(
                         id='min-deny',
                         type='number',
-                        placeholder='Enter a number of access denied min',
+                        placeholder='Numb of denied min',
                     ),
-                    width=3,
+                    width=2,
                 ),
             ], className="mb-2",
             ),
@@ -132,39 +130,39 @@ def update_figure(deny, port):
     if deny is not None:
         deny = int(deny)
     else : 
-        deny = 5000
+        deny = 0
     if port is not None:
         port = int(port)
     else : 
-        port = 5000
+        port = 0
 
-    p = p[(p['nb_portdst'] >= port) & (p['nb_deny'] >= deny)]
+    p = p[(p['nb_dstport'] >= port) & (p['nb_deny'] >= deny)]
     
     # Create figure with secondary y-axis
     fig = sp.make_subplots(specs=[[{"secondary_y": True}]])
 
     # Add traces
     fig.add_trace(
-        go.Scatter(x=p['ipsrc'], y=p['nb_portdst'], name="yaxis data", mode='markers', marker_size=4),
+        go.Scatter(x=p['ipsrc'], y=p['nb_dstport'], name="Nombre de ports empruntés", mode='markers', marker_size=4),
         secondary_y=False,
     )
 
     fig.add_trace(
-        go.Scatter(x=p['ipsrc'], y=p['nb_deny'], name="yaxis2 data", mode='markers', marker_size=4),
+        go.Scatter(x=p['ipsrc'], y=p['nb_deny'], name="Nombre de refus", mode='markers', marker_size=4),
         secondary_y=True,
     )
 
     # Add figure title
     fig.update_layout(
-        title_text="Double Y Axis Example"
+        title_text=" Nombre de ports empruntés et nombre de refus pour chaque Ip Source"
     )
 
     # Set x-axis title
-    fig.update_xaxes(title_text="xaxis title")
+    fig.update_xaxes(title_text="Adresse Ip Source")
 
     # Set y-axes titles
-    fig.update_yaxes(title_text="<b>primary</b> yaxis title", secondary_y=False)
-    fig.update_yaxes(title_text="<b>secondary</b> yaxis title", secondary_y=True)
+    fig.update_yaxes(title_text="Nombre ports empruntés", secondary_y=False)
+    fig.update_yaxes(title_text="Nombre de refus", secondary_y=True)
 
     return fig
    
