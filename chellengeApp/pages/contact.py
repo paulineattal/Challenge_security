@@ -7,7 +7,7 @@ devs = [    {'name': 'ELOUETClement', 'email': 'clement.elouet@univ-lyon2.fr'}, 
 layout = html.Div([
     dbc.Container([
         html.H1('Contactez les développeurs', className='display-4 mt-5 mb-3 text-center'),
-
+        html.H2(children=[html.A('Le lien du GitHub', href='https://github.com/paulineattal/Challenge_security')], className='text-center'),
         # Création d'une liste pour chaque développeur
         dbc.Row([dbc.Col(html.Div([
             html.H3(dev['name'], className='h5 font-weight-bold'),

@@ -1,6 +1,6 @@
 from dash import html, Input, Output, dcc
 from app import app
-from pages import home, page1, protocol, action, ipsrc, stat, contact
+from pages import home, page1, protocol, action, ipsrc, stat, contact, model
 import dash_bootstrap_components as dbc
 import gunicorn
 from app import server
@@ -34,7 +34,7 @@ navbar = dbc.Navbar(
                                 dbc.NavItem(dbc.NavLink("FW. Action", href="/action")),
                                 dbc.NavItem(dbc.NavLink("FW. Ipsrc", href="/ipsrc")),
                                 dbc.NavItem(dbc.NavLink("FW. Statistiques", href="/stat")),
-                                #dbc.NavItem(dbc.NavLink("FW. Modele", href="/model")),
+                                dbc.NavItem(dbc.NavLink("FW. Modele", href="/model")),
                                 dbc.NavItem(dbc.NavLink("Logs Apache", href="/page1")),
                                 dbc.NavItem(dbc.NavLink("Contact", href="/contact", className="ml-auto")),
                             ],
@@ -75,6 +75,8 @@ def display_page(pathname):
         return ipsrc.layout()
     elif pathname == '/stat':
         return stat.layout()
+    elif pathname == '/model':
+        return model.layout()
     elif pathname == '/contact':
         return contact.layout
     else:

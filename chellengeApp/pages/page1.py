@@ -25,8 +25,12 @@ df[['hour', 'minute', 'second']] = df['time'].str.split(':', expand=True)
 ###definition des gaphiques fig
 
 # Créer un histogramme des requêtes par heure
-requests_per_hour = df.groupby(df['minute']).size().reset_index(name='count')
-fig1 = px.bar(requests_per_hour, x='minute', y='count', title='Requêtes par heure')
+# Créer un histogramme des requêtes par minute pour une heure donnée
+requests_per_minute = df.groupby('minute')['hour'].value_counts().reset_index(name='count')
+fig1 = px.bar(requests_per_minute, x='minute', y='count', title='Requêtes par minute')
+
+#requests_per_hour = df.groupby(df['minute']).size().reset_index(name='count')
+#fig1 = px.bar(requests_per_hour, x='minute', y='count', title='Requêtes par heure')
 
 # Créer un graphique à barres pour les adresses IP avec le plus grand nombre de requêtes
 ip_counts = df['local_ip'].value_counts().reset_index()
@@ -63,18 +67,16 @@ card2 = dbc.Card(
 def layout():
     return dbc.Container(
         [
-            html.H1("Page 1"),
+            html.H1("Statistques des logs Apache"),
             html.Hr(),
             dbc.Row(
             [
                 dbc.Col(
-                    dcc.DatePickerRange(
-                        id='date-picker',
-                        display_format='DD/MM/YYYY',
-                        start_date_placeholder_text='Start Date',
-                        end_date_placeholder_text='End Date',
+                    dcc.Dropdown(
+                        id='hour-dropdown',
+                        options=[{'label': str(i) + ':00', 'value': i} for i in range(24)],
+                        placeholder='Select an hour'
                     ),
-                    width=3,
                 ),
                 dbc.Col(
                     dcc.Dropdown(
@@ -121,22 +123,21 @@ def layout():
 @callback(
     [Output('graph1', 'figure'),
      Output('graph2', 'figure')],
-    [Input('date-picker', 'start_date'),
-     Input('date-picker', 'end_date'),
+    [Input('hour-dropdown', 'value'),
      Input('status-dropdown', 'value'),
      Input('ip-input', 'value')])
-def update_figures(start_date, end_date, status, ip):
+def update_figures(hour, status, ip):
     filtered_df = df.copy()
-    if start_date and end_date:
-        filtered_df = filtered_df[(filtered_df['time'] >= start_date) & (filtered_df['time'] <= end_date)]
+    if hour :
+        filtered_df = filtered_df[(filtered_df['hour'] == hour)]
     if status:
         filtered_df = filtered_df[filtered_df['status'] == int(status)]
     if ip:
         filtered_df = filtered_df[filtered_df['local_ip'] == ip]
 
     # Update fig1
-    if not filtered_df.empty:
-        requests_per_minute = filtered_df.groupby(filtered_df['minute']).size().reset_index(name='count')
+    if not filtered_df.empty:        
+        requests_per_minute = df.groupby('minute')['hour'].value_counts().reset_index(name='count')
         fig1 = px.bar(requests_per_minute, x='minute', y='count', title='Requêtes par minute')
     else:
         fig1 = px.bar(df.groupby(df['minute']).size().reset_index(name='count'), x='minute', y='count', title='Requêtes par minute')
