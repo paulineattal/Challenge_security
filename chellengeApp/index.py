@@ -1,7 +1,9 @@
 from dash import html, Input, Output, dcc
 from app import app
-from pages import home, page1, iptable, action
+from pages import home, page1, protocol, action, ipsrc, stat, contact
 import dash_bootstrap_components as dbc
+import gunicorn
+from app import server
 
 # Navbar layout
 navbar = dbc.Navbar(
@@ -28,9 +30,13 @@ navbar = dbc.Navbar(
                     dbc.Col(
                         dbc.Nav(
                             [
-                                dbc.NavItem(dbc.NavLink("Page 1", href="/page1")),
-                                dbc.NavItem(dbc.NavLink("Iptable", href="/iptable")),
-                                dbc.NavItem(dbc.NavLink("Action", href="/action")),
+                                dbc.NavItem(dbc.NavLink("FW. Protocol", href="/protocol")),
+                                dbc.NavItem(dbc.NavLink("FW. Action", href="/action")),
+                                dbc.NavItem(dbc.NavLink("FW. Ipsrc", href="/ipsrc")),
+                                dbc.NavItem(dbc.NavLink("FW. Statistiques", href="/stat")),
+                                #dbc.NavItem(dbc.NavLink("FW. Modele", href="/model")),
+                                dbc.NavItem(dbc.NavLink("Logs Apache", href="/page1")),
+                                dbc.NavItem(dbc.NavLink("Contact", href="/contact", className="ml-auto")),
                             ],
                             navbar=True,
                         ),
@@ -61,10 +67,16 @@ def display_page(pathname):
         return home.layout
     elif pathname == '/page1':
         return page1.layout()
-    elif pathname == '/iptable':
-        return iptable.layout()
+    elif pathname == '/protocol':
+        return protocol.layout()
     elif pathname == '/action':
         return action.layout()
+    elif pathname == '/ipsrc':
+        return ipsrc.layout()
+    elif pathname == '/stat':
+        return stat.layout()
+    elif pathname == '/contact':
+        return contact.layout
     else:
         return '404'
 
